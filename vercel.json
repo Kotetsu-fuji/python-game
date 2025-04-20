@@ -2,5 +2,8 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/", "destination": "/index.html" }
-  ]
+  ],
+  "projectSettings": {
+    "framework": "other"
+  }
 }
