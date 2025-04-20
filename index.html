@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Othello Game</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <style>
+        table { border-collapse: collapse; }
+        td {
+            width: 50px; height: 50px;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 30px;
+            cursor: pointer;
+            background-color: #086d00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Othello Game</h1>
+    <div id="game"></div>
+    <p id="turn">Turn: White (You)</p>
+
+    <py-script>
+from pyscript import Element
+
+board_size = 8
+board = [['' for _ in range(board_size)] for _ in range(board_size)]
+board[3][3] = 'white'
+board[3][4] = 'black'
+board[4][3] = 'black'
+board[4][4] = 'white'
+turn = 'white'
+
+def flip_direction(row, col, d_row, d_col, player_color):
+    flip_positions = []
+    r, c = row + d_row, col + d_col
+    if not (0 <= r < board_size and 0 <= c < board_size):
+        return []
+    opponent_color = 'white' if player_color == 'black' else 'black'
+    if board[r][c] != opponent_color:
+        return []
+    flip_positions.append((r, c))
+    r += d_row
+    c += d_col
+    while 0 <= r < board_size and 0 <= c < board_size:
+        if board[r][c] == '':
+            return []
+        if board[r][c] == player_color:
+            return flip_positions
+        flip_positions.append((r, c))
+        r += d_row
+        c += d_col
+    return []
+
+def is_valid_move(row, col, player_color):
+    if not (0 <= row < board_size and 0 <= col < board_size):
+        return False
+    if board[row][col] != '':
+        return False
+    directions = [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)]
+    for d_row, d_col in directions:
+        if flip_direction(row, col, d_row, d_col, player_color):
+            return True
+    return False
+
+def flip_captured(row, col, player_color):
+    directions = [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)]
+    for d_row, d_col in directions:
+        for r, c in flip_direction(row, col, d_row, d_col, player_color):
+            board[r][c] = player_color
+
+def render_board():
+    html = '<table>'
+    for y in range(board_size):
+        html += '<tr>'
+        for x in range(board_size):
+            symbol = '⚫️' if board[y][x] == 'black' else '⚪️' if board[y][x] == 'white' else ''
+            html += f'<td onclick="place({x},{y})">{symbol}</td>'
+        html += '</tr>'
+    html += '</table>'
+    Element("game").write(html)
+    Element("turn").write(f"Turn: {'White (You)' if turn == 'white' else 'Black (CPU)'}")
+
+def place(x: int, y: int):
+    global turn
+    if is_valid_move(y, x, turn):
+        board[y][x] = turn
+        flip_captured(y, x, turn)
+        turn = 'black' if turn == 'white' else 'white'
+        render_board()
+
+render_board()
+    </py-script>
+
+    <script>
+        function place(x, y) {
+            pyscript.interpreter.globals.get('place')(x, y);
+        }
+    </script>
+</body>
+</html>
