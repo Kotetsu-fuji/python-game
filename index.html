@@ -22,6 +22,7 @@
   <h1>Othello Game</h1>
   <div id="game"></div>
   <p id="turn">Turn: White (You)</p>
+
   <py-script>
 from pyscript import Element
 
@@ -93,6 +94,7 @@ def place(x: int, y: int):
 
 render_board()
   </py-script>
+
   <script>
     function place(x, y) {
       pyscript.interpreter.globals.get('place')(x, y);
